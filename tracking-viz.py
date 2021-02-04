@@ -6,6 +6,10 @@ import cartopy.feature as cpf
 import numpy.random as npr
 import cartopy.crs as ccrs
 import sys, getopt
+from datetime import datetime
+
+def unix_ms_to_date(ms):
+    return datetime.utcfromtimestamp(ms / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
 def main(argv):
 
@@ -39,6 +43,8 @@ def main(argv):
             longtitudes[int(location["timestampMs"])] = int(location["longitudeE7"]) / 1e+7
         
         print("Finished importing coordinates, generating coordinate array for matplotlib...")
+        print("First datapoint is from", unix_ms_to_date(int(history_json["locations"][0]["timestampMs"])))
+        print("Last datapoint is from", unix_ms_to_date(int(history_json["locations"][-1]["timestampMs"])))
 
         pts_x = []
         pts_y = []
@@ -61,7 +67,7 @@ def main(argv):
         ax.add_feature(cpf.LAKES,   alpha=0.5)
         ax.add_feature(cpf.RIVERS)
 
-        ax.scatter(pts_x, pts_y, transform=proj, s=1.5, c='red')
+        ax.scatter(pts_x, pts_y, transform=proj, s=1.5, c='orange')
 
         plt.show()
 
