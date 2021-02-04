@@ -5,7 +5,7 @@ To run the script, create a Google Takeout containing your location history [her
 Then install the requirements needed with `python -m pip install -r requirements.txt`. You can do this in a `venv` if you want, but matplotlib will most likely complain about not being able to show the figure.
 When the setup is done, simply run `python tracking-viz.py -f [PATH-TO-FILE]` and the map will show up.
 
-[It should look something like this](https://github.com/LouKordos/google-tracking-viz/raw/main/example.png)
+![It should look something like this](https://github.com/LouKordos/google-tracking-viz/raw/main/example.png)
 
 There is much more data in the JSON file than what is plotted, so feel free to contribute improvements.
 
