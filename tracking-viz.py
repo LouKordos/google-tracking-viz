@@ -7,6 +7,7 @@ import numpy.random as npr
 import cartopy.crs as ccrs
 import sys, getopt
 from datetime import datetime
+import numpy as np
 
 def unix_ms_to_date(ms):
     return datetime.utcfromtimestamp(ms / 1000).strftime('%Y-%m-%d %H:%M:%S')
@@ -43,8 +44,9 @@ def main(argv):
             longtitudes[int(location["timestampMs"])] = int(location["longitudeE7"]) / 1e+7
         
         print("Finished importing coordinates, generating coordinate array for matplotlib...")
-        print("First datapoint is from", unix_ms_to_date(int(history_json["locations"][0]["timestampMs"])))
-        print("Last datapoint is from", unix_ms_to_date(int(history_json["locations"][-1]["timestampMs"])))
+        print("First data point is from", unix_ms_to_date(int(history_json["locations"][0]["timestampMs"])))
+        print("Last data point is from", unix_ms_to_date(int(history_json["locations"][-1]["timestampMs"])))
+        print("Total amount of data points:", len(latitudes))
 
         pts_x = []
         pts_y = []
@@ -58,7 +60,8 @@ def main(argv):
 
         print("Finished generating coordinate arrays, plotting values...")
 
-        ax = plt.figure().gca(projection=proj)
+        fig = plt.figure()
+        ax = fig.gca(projection=proj)
 
         ax.add_feature(cpf.LAND)
         ax.add_feature(cpf.OCEAN)
@@ -67,7 +70,27 @@ def main(argv):
         ax.add_feature(cpf.LAKES,   alpha=0.5)
         ax.add_feature(cpf.RIVERS)
 
-        ax.scatter(pts_x, pts_y, transform=proj, s=1.5, c='orange')
+        annotations = []
+
+        def onpick(event):
+            global annotation
+            index = event.ind[0]
+            selected_lat = pts_y[index]
+            selected_lon = pts_x[index]
+            timestamp = unix_ms_to_date(list(latitudes.keys())[list(latitudes.values()).index(selected_lat)])
+
+            print(index)
+            print("Timestamp:", timestamp)
+            print("Selected latitude:", selected_lat)
+            print("Selected longtitude:", selected_lon)
+            if (len(annotations)) > 0:
+                annotations[-1].remove() 
+            annotation = ax.annotate(str(timestamp), xy=(selected_lon, selected_lat), xycoords="data", xytext=(0.8, 0.8), textcoords='axes fraction', arrowprops=dict(facecolor='orange', color='orange', shrink=0.01, width=1), fontsize=14)
+            fig.canvas.draw()
+            annotations.append(annotation)
+
+        ax.scatter(pts_x, pts_y, transform=proj, s=3, c='darkblue', picker=True)
+        fig.canvas.mpl_connect('pick_event', onpick)
 
         plt.show()
 
